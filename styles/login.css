@@ -116,6 +116,23 @@
 .hd-login__submit:disabled {
   opacity: .35; cursor: not-allowed; transform: none;
 }
+.hd-login__submit.is-loading {
+  cursor: wait;
+  opacity: .65;
+}
+
+/* 錯誤訊息(預設隱藏,is-visible 才顯示) */
+.hd-login__error {
+  display: none;
+  padding: 11px 14px;
+  background: rgba(181, 60, 46, .08);
+  border: 1px solid var(--hd-danger);
+  border-radius: var(--hd-radius);
+  color: var(--hd-danger);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.hd-login__error.is-visible { display: block; }
 
 .hd-login__hint {
   font-size: 13px;

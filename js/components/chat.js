@@ -108,7 +108,11 @@
         round:       st.round    || 1,
       };
 
-      // 1. 推 user 訊息 + 啟動 typing(會觸發 re-render,輸入框會清空)
+      // 先清空輸入框(router 重繪會抓 textarea 的 value 還原,
+      // 不清會把剛送出的訊息又貼回來)
+      input.value = "";
+
+      // 1. 推 user 訊息 + 啟動 typing(會觸發 re-render,textarea 會被禁用)
       var prev = st.chatMessages || [];
       window.HD_STATE.set({
         chatMessages: prev.concat([{ from: "user", text: text }]),
@@ -127,6 +131,14 @@
         chatMessages: prev2.concat([{ from: "ai", text: replyText }]),
         chatTyping:   false,
       });
+
+      // 4. AI 回覆後重新對焦到輸入框,讓使用者直接接著打下一句
+      //    (router 的 captureChatInputState 看 activeElement,
+      //    AI 思考期間 textarea 是 disabled 所以不在 active,得這裡主動 focus)
+      setTimeout(function () {
+        var newInput = document.querySelector(".hd-chat__input");
+        if (newInput && !newInput.disabled) newInput.focus();
+      }, 0);
     });
 
     return root;

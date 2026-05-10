@@ -26,6 +26,18 @@
     };
   }
 
+  async function mockLogin(name, code) {
+    await delay(250);
+    return {
+      ok:           true,
+      name:         name,
+      player_code:  code,
+      species:      "generic",
+      team:         "MOCK",
+      bodyDesc:     "(MOCK)我能感覺到風的方向。",
+    };
+  }
+
   // ── 真實 GAS POST ──────────────────────────────────────────
   async function gasPost(action, payload) {
     var url = window.HD_CONFIG.GAS_URL;
@@ -70,6 +82,22 @@
 
   // ── 公開 API ───────────────────────────────────────────────
   window.HD_API = {
+    /**
+     * 驗證學生(GAS 比對 students 分頁)
+     * 成功回 { ok:true, name, player_code, species, team, bodyDesc }
+     * 失敗回 { ok:false, error }
+     */
+    login: async function (name, code) {
+      var n = String(name || "").trim();
+      var c = String(code || "").trim().toUpperCase();
+      if (!n) return { ok: false, error: "請輸入姓名" };
+      if (!c) return { ok: false, error: "請輸入玩家代號" };
+      if (window.HD_CONFIG.MOCK_MODE) {
+        return mockLogin(n, c);
+      }
+      return gasPost("login", { name: n, player_code: c });
+    },
+
     /**
      * 送一條訊息給 AI 夥伴,回 { ok, reply } 或 { ok:false, error }
      * @param {{name:string, player_code:string, message:string, round:number}} payload

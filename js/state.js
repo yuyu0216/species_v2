@@ -48,6 +48,16 @@
       notify();
     },
 
+    // 不觸發 re-render 的更新(用於高頻欄位如 timerSeconds,
+    // 由呼叫方自行更新需要的 DOM)
+    setSilent: function (patch) {
+      for (var k in patch) {
+        if (Object.prototype.hasOwnProperty.call(patch, k)) {
+          state[k] = patch[k];
+        }
+      }
+    },
+
     subscribe: function (fn) {
       listeners.push(fn);
       return function () {

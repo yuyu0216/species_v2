@@ -64,33 +64,33 @@
 
 html, body {
   margin: 0; padding: 0;
-  background: #2A2620;
+  background: var(--hd-paper);
   font-family: var(--hd-font-sans);
   color: var(--hd-ink);
   font-size: 19px;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-}
-
-body {
-  min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
+  /* 視窗鎖在 100vh,杜絕 body 因為 stage layout box 而撐高 */
+  height: 100vh;
   overflow: hidden;
 }
 
-/* 舞台:固定 1180×820,實際縮放交給 main.js 算 transform: scale */
+/* 舞台:固定 1180×820 layout box,由 main.js 算 scale 比例
+   用 position: fixed + translate(-50%, -50%) 脫離 body 的 layout flow,
+   這樣即使 layout box 比視窗大也不會把 body 撐高 / 出現滾動條 */
 .hd-stage {
+  position: fixed;
+  left: 50%;
+  top: 50%;
   width: var(--hd-stage-w);
   height: var(--hd-stage-h);
-  position: relative;
   background: var(--hd-paper);
   overflow: hidden;
-  box-shadow:
-    0 0 0 10px #1a1612,
-    0 0 0 12px #3a342a,
-    0 32px 64px rgba(0,0,0,.4);
-  border-radius: 16px;
+  box-shadow: none;
+  border-radius: 0;
   transform-origin: center center;
+  /* 預設先擺到中間,實際 scale 由 main.js 套上 */
+  transform: translate(-50%, -50%) scale(1);
 }
 
 /* 紙張紋理(輕微噪點) */

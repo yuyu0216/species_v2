@@ -7,10 +7,13 @@
   function fitStage() {
     var stage = document.getElementById("hd-stage");
     if (!stage) return;
+    // 取兩軸縮放比的最小值,讓較短的一軸貼齊視窗
+    // (移除 Math.min(..., 1) 的上限,大螢幕也放大,小螢幕也縮小,永遠滿版適配)
     var sx = window.innerWidth  / 1180;
     var sy = window.innerHeight / 820;
-    var s  = Math.min(sx, sy, 1) * 0.98;
-    stage.style.transform = "scale(" + s + ")";
+    var s  = Math.min(sx, sy) * 0.99;
+    // translate 跟 scale 必須在同一個 transform 字串裡(stage 用 position:fixed 居中)
+    stage.style.transform = "translate(-50%, -50%) scale(" + s + ")";
   }
 
   function start() {
