@@ -1,0 +1,124 @@
+/* ============================================================
+   TopBar — 頂部玩家狀態列
+   高度 100px(原 124px),所有字級依 1180×820 同比縮小
+   ============================================================ */
+
+.hd-topbar {
+  position: relative;
+  z-index: 5;
+  height: var(--hd-topbar-h);
+  padding: 0 28px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 22px;
+  background: linear-gradient(180deg, var(--hd-card-soft) 0%, transparent 100%);
+  border-bottom: 1px solid var(--hd-line-soft);
+}
+
+.hd-topbar__brand { display: flex; align-items: center; gap: 14px; }
+.hd-topbar__logo {
+  width: 50px; height: 50px;
+  border-radius: 13px;
+  background: var(--hd-ink);
+  color: var(--hd-paper);
+  display: grid; place-items: center;
+  font-family: var(--hd-font-display);
+  font-weight: 700; font-size: 25px;
+  position: relative;
+}
+.hd-topbar__logo::after {
+  content: "";
+  position: absolute; inset: 4px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 9px;
+}
+
+.hd-topbar__title {
+  font-family: var(--hd-font-display);
+  font-weight: 700;
+  font-size: 25px;
+  letter-spacing: .02em;
+  color: var(--hd-ink);
+  margin: 0;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.hd-topbar__subtitle {
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--hd-ink-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.hd-topbar__player {
+  display: flex; align-items: center; gap: 12px;
+  justify-content: flex-end;
+}
+
+/* MOCK 模式指示器 */
+.hd-pill--mock {
+  background: rgba(199, 122, 46, .15);
+  border-color: var(--hd-warning);
+  color: var(--hd-warning);
+  font-family: var(--hd-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  padding: 5px 10px;
+}
+
+/* 倒數計時 pill — 同 hd-pill 但寬度固定避免抖動 */
+.hd-pill--timer .hd-pill__value {
+  font-family: var(--hd-font-mono);
+  font-variant-numeric: tabular-nums;
+  min-width: 56px;
+  text-align: center;
+}
+.hd-pill--timer.hd-pill--low {
+  border-color: var(--hd-warning);
+  color: var(--hd-warning);
+}
+.hd-pill--timer.hd-pill--low .hd-pill__value { color: var(--hd-warning); }
+.hd-pill--timer.hd-pill--zero {
+  border-color: var(--hd-danger);
+  background: rgba(181, 60, 46, .08);
+  animation: hd-timer-flash 1.2s ease-in-out infinite;
+}
+.hd-pill--timer.hd-pill--zero .hd-pill__value,
+.hd-pill--timer.hd-pill--zero .hd-pill__label { color: var(--hd-danger); }
+
+@keyframes hd-timer-flash {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .55; }
+}
+
+/* 環形 AP 進度 */
+.hd-roundgauge { display: flex; align-items: center; gap: 10px; }
+.hd-roundgauge__ring {
+  position: relative;
+  width: 48px; height: 48px;
+}
+.hd-roundgauge__center {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-family: var(--hd-font-display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--hd-ink);
+}
+.hd-roundgauge__meta {
+  font-size: 11px;
+  color: var(--hd-ink-muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hd-roundgauge__big {
+  font-size: 16px;
+  color: var(--hd-ink);
+  font-weight: 600;
+  white-space: nowrap;
+}

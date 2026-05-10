@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=900, initial-scale=1" />
+  <title>GAS 連線測試 — 誰動了我的棲地!</title>
+  <style>
+    body {
+      margin: 0; padding: 24px;
+      font-family: "Noto Sans TC", system-ui, sans-serif;
+      background: #2A2620; color: #F5F1E8;
+    }
+    h1 { margin: 0 0 12px; font-size: 22px; }
+    .config {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .config code {
+      background: rgba(0,0,0,.4);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      word-break: break-all;
+    }
+    .row {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 16px; align-items: center;
+    }
+    label { font-size: 13px; color: rgba(245,241,232,.7); }
+    input {
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 7px;
+      padding: 8px 12px;
+      color: #F5F1E8;
+      font-family: inherit;
+      font-size: 14px;
+      min-width: 180px;
+      outline: none;
+    }
+    input:focus { border-color: #B85C3D; }
+    button {
+      background: #B85C3D; color: white;
+      border: 0; border-radius: 7px;
+      padding: 9px 18px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    button:hover { background: #9F4A2E; }
+    button:disabled { opacity: .4; cursor: not-allowed; }
+    pre {
+      background: #1a1612;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      color: #B5D88E;
+      max-height: 60vh;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .err { color: #E89579; }
+    .ok  { color: #B5D88E; }
+    .meta { color: rgba(245,241,232,.55); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>🌿 GAS 連線測試</h1>
+
+  <div class="config">
+    <div><strong>GAS URL:</strong> <code id="cfgUrl">…</code></div>
+    <div><strong>MOCK_MODE:</strong> <code id="cfgMock">…</code></div>
+    <div><strong>Timeout:</strong> <code id="cfgTimeout">…</code> ms</div>
+    <div class="meta" style="margin-top:6px">設定值來自 <code>src/js/config.js</code></div>
+  </div>
+
+  <div class="row">
+    <label>姓名 <input id="inName" value="TEST" /></label>
+    <label>代號 <input id="inCode" value="TEST" /></label>
+    <label>回合 <input id="inRound" value="1" type="number" min="1" style="min-width:70px" /></label>
+  </div>
+  <div class="row">
+    <label style="flex:1">訊息 <input id="inMsg" value="你好,請用一句話介紹這片棲地。" style="width:100%" /></label>
+  </div>
+  <div class="row">
+    <button id="btnChat">送 chat</button>
+    <button id="btnHealth">健康檢查 (GET)</button>
+    <span class="meta" id="elapsed"></span>
+  </div>
+
+  <pre id="output">(尚未執行)</pre>
+
+  <script src="js/config.js"></script>
+  <script>
+    var cfgUrl     = document.getElementById("cfgUrl");
+    var cfgMock    = document.getElementById("cfgMock");
+    var cfgTimeout = document.getElementById("cfgTimeout");
+    var output     = document.getElementById("output");
+    var elapsed    = document.getElementById("elapsed");
+
+    cfgUrl.textContent     = window.HD_CONFIG.GAS_URL || "(未設定)";
+    cfgMock.textContent    = String(window.HD_CONFIG.MOCK_MODE);
+    cfgTimeout.textContent = window.HD_CONFIG.REQUEST_TIMEOUT_MS;
+
+    function print(label, obj, cls) {
+      var s = typeof obj === "string" ? obj : JSON.stringify(obj, null, 2);
+      output.className = cls || "";
+      output.textContent = "[" + new Date().toLocaleTimeString() + "] " + label + "\n\n" + s;
+    }
+
+    async function runChat() {
+      var btn = document.getElementById("btnChat");
+      btn.disabled = true;
+      var t0 = performance.now();
+      print("送出中…", "");
+      try {
+        var body = JSON.stringify({
+          action:      "chat",
+          name:        document.getElementById("inName").value,
+          player_code: document.getElementById("inCode").value,
+          message:     document.getElementById("inMsg").value,
+          round:       Number(document.getElementById("inRound").value) || 1,
+        });
+        var res = await fetch(window.HD_CONFIG.GAS_URL, {
+          method:  "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body:    body,
+        });
+        var ms   = Math.round(performance.now() - t0);
+        elapsed.textContent = "耗時 " + ms + " ms · HTTP " + res.status;
+        var text = await res.text();
+        try {
+          var json = JSON.parse(text);
+          print("回應 JSON:", json, json.ok ? "ok" : "err");
+        } catch (_) {
+          print("回應(非 JSON):", text, "err");
+        }
+      } catch (err) {
+        var ms = Math.round(performance.now() - t0);
+        elapsed.textContent = "耗時 " + ms + " ms";
+        print("錯誤:", err.message || String(err), "err");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function runHealth() {
+      var btn = document.getElementById("btnHealth");
+      btn.disabled = true;
+      var t0 = performance.now();
+      print("送出中…", "");
+      try {
+        var res = await fetch(window.HD_CONFIG.GAS_URL, { method: "GET" });
+        var ms   = Math.round(performance.now() - t0);
+        elapsed.textContent = "耗時 " + ms + " ms · HTTP " + res.status;
+        var text = await res.text();
+        try {
+          var json = JSON.parse(text);
+          print("回應 JSON:", json, json.ok ? "ok" : "err");
+        } catch (_) {
+          print("回應(非 JSON):", text, "err");
+        }
+      } catch (err) {
+        elapsed.textContent = "";
+        print("錯誤:", err.message || String(err), "err");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById("btnChat").addEventListener("click", runChat);
+    document.getElementById("btnHealth").addEventListener("click", runHealth);
+  </script>
+</body>
+</html>

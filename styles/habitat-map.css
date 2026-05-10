@@ -1,0 +1,125 @@
+/* ============================================================
+   棲地地圖 — 2×2 橫向 5:3 tile,底圖切自 map.png 四象限
+   ============================================================ */
+
+.hd-map {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 6px;
+  padding: 6px;
+  background: var(--hd-card);
+  border: 1.5px solid var(--hd-line);
+  border-radius: var(--hd-radius-xl);
+  box-shadow: var(--hd-shadow);
+  overflow: hidden;
+  position: relative;
+  /* 中欄寬度約 540px,2 個橫向 5:3 tile + gap → 高度約 318px */
+  height: 320px;
+}
+
+/* tile:沿用 map.png 同一張底圖,以 background-position 切四象限 */
+.hd-tile {
+  position: relative;
+  border-radius: var(--hd-radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: border-color .2s, transform .2s;
+  background-image: url("../assets/map.png");
+  background-size: 200% 200%;
+  background-repeat: no-repeat;
+}
+.hd-tile:hover { transform: scale(0.998); }
+.hd-tile--active {
+  border-color: var(--hd-ink);
+  box-shadow: 0 0 0 3px rgba(42,38,32,.1);
+}
+
+/* 四象限:image.png 是 600×360,左上濕地、右上森林、左下都會、右下港口 */
+.hd-tile--wetland { background-position:   0%   0%; }
+.hd-tile--forest  { background-position: 100%   0%; }
+.hd-tile--urban   { background-position:   0% 100%; }
+.hd-tile--port    { background-position: 100% 100%; }
+
+/* 棲地名稱 nametag(左上角) */
+.hd-tile__nametag {
+  position: absolute;
+  top: 10px; left: 10px;
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(0,0,0,.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: white;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-family: var(--hd-font-display);
+  font-weight: 600;
+  font-size: 16px;
+  z-index: 3;
+  white-space: nowrap;
+}
+.hd-tile__nametag-en {
+  font-family: var(--hd-font-sans);
+  font-size: 10px;
+  font-weight: 400;
+  opacity: .7;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-left: 3px;
+}
+.hd-tile--active .hd-tile__nametag {
+  background: var(--hd-ink);
+}
+
+/* 玩家自己族群在此地的標示(左下角) */
+.hd-tile__own {
+  position: absolute;
+  left: 10px; bottom: 10px;
+  background: rgba(255,255,255,.95);
+  color: var(--hd-ink);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 600;
+  z-index: 3;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  white-space: nowrap;
+}
+.hd-tile__own-num {
+  font-family: var(--hd-font-display);
+  font-size: 16px;
+  font-weight: 700;
+}
+.hd-tile__own-dot {
+  width: 9px; height: 9px;
+  border-radius: 999px;
+}
+
+/* 動物族群圓點 — seeded random 分布 */
+.hd-tile__species-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.hd-species-pin {
+  position: absolute;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,.85);
+  box-shadow: 0 2px 5px rgba(0,0,0,.35);
+  transform: translate(-50%, -50%);
+}
+.hd-species-pin--self::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 2px dashed rgba(255,255,255,.95);
+  border-radius: 999px;
+  animation: hd-pulse 2s ease-in-out infinite;
+}
+@keyframes hd-pulse {
+  0%, 100% { opacity: .6; transform: scale(1); }
+  50%      { opacity: 1;  transform: scale(1.08); }
+}

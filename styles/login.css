@@ -1,0 +1,125 @@
+/* ============================================================
+   登入畫面 — 沿用米色紙張底 + 深墨色 + Fraunces 標題
+   ============================================================ */
+
+.hd-login {
+  position: relative;
+  z-index: 1;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.hd-login__card {
+  width: 520px;
+  background: var(--hd-card);
+  border: 1px solid var(--hd-line);
+  border-radius: var(--hd-radius-xl);
+  padding: 44px 52px 40px;
+  box-shadow: var(--hd-shadow-lg);
+  display: flex; flex-direction: column; gap: 22px;
+}
+
+.hd-login__brand {
+  display: flex; align-items: center; gap: 14px;
+}
+.hd-login__logo {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  background: var(--hd-ink);
+  color: var(--hd-paper);
+  display: grid; place-items: center;
+  font-family: var(--hd-font-display);
+  font-weight: 700;
+  font-size: 28px;
+  position: relative;
+}
+.hd-login__logo::after {
+  content: "";
+  position: absolute; inset: 4px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 10px;
+}
+.hd-login__brand-text { display: flex; flex-direction: column; }
+.hd-login__title {
+  font-family: var(--hd-font-display);
+  font-weight: 700;
+  font-size: 30px;
+  color: var(--hd-ink);
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: .01em;
+}
+.hd-login__kicker {
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--hd-ink-muted);
+  margin-top: 4px;
+}
+
+.hd-login__subtitle {
+  font-size: 16px;
+  color: var(--hd-ink-soft);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.hd-login__fields {
+  display: flex; flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+.hd-login__field { display: flex; flex-direction: column; gap: 6px; }
+.hd-login__label {
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--hd-ink-muted);
+  font-weight: 700;
+}
+.hd-login__input {
+  padding: 14px 18px;
+  border: 1px solid var(--hd-line);
+  border-radius: var(--hd-radius);
+  background: var(--hd-card-soft);
+  color: var(--hd-ink);
+  font-family: inherit;
+  font-size: 18px;
+  outline: none;
+  transition: border-color .15s, background .15s;
+}
+.hd-login__input:focus {
+  border-color: var(--hd-ink-soft);
+  background: var(--hd-card);
+}
+.hd-login__input--code {
+  font-family: var(--hd-font-mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.hd-login__submit {
+  margin-top: 8px;
+  background: var(--hd-ink);
+  color: var(--hd-paper);
+  border: 0;
+  border-radius: var(--hd-radius);
+  padding: 16px 20px;
+  font-family: var(--hd-font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+.hd-login__submit:hover  { background: #16120c; transform: translateY(-1px); }
+.hd-login__submit:disabled {
+  opacity: .35; cursor: not-allowed; transform: none;
+}
+
+.hd-login__hint {
+  font-size: 13px;
+  color: var(--hd-ink-muted);
+  text-align: center;
+  margin: 0;
+}
