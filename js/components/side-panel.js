@@ -84,7 +84,7 @@
         '</div>' +
       '</div>';
 
-    // 性狀
+    // 性狀(只顯示已解鎖,未解鎖不揭露給學生)
     var traitsHtml = "";
     var u = window.HD_TRAITS.unlocked;
     for (var j = 0; j < u.length; j++) {
@@ -93,12 +93,8 @@
           '<span class="hd-trait__dot"></span>' + u[j].name +
         '</span>';
     }
-    var l = window.HD_TRAITS.locked;
-    for (var k2 = 0; k2 < l.length; k2++) {
-      traitsHtml +=
-        '<span class="hd-trait hd-trait--locked" data-trait-id="' + l[k2].id + '" title="' + (l[k2].hint || "") + '">' +
-          '<span class="hd-trait__dot"></span>' + l[k2].name +
-        '</span>';
+    if (!u.length) {
+      traitsHtml = '<span class="hd-trait hd-trait--empty">尚未解鎖任何性狀</span>';
     }
     html +=
       '<div class="hd-detail-card">' +

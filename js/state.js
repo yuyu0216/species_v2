@@ -13,12 +13,10 @@
     round: 2,
     totalRounds: 5,
     apTotal: 10,
-    apRemain: 5,
-    queued: [                       // 已排入的行動
-      { id: "breed",   cost: 1 },
-      { id: "migrate", cost: 1 },
-      { id: "explore", cost: 1 },
-    ],
+    // 已排入的行動;每項 { id, cost, habitatId, targetHabitatId? }
+    // 可重複,點擊「已選擇行動」條目可刪除。
+    // 剩餘 AP 由 apTotal - sum(queued.cost) 動態算出,不存在 state
+    queued: [],
     timerSeconds: 300,              // 5:00 倒數
     timerRunning: false,
     chatMessages: [                 // AI 對話訊息(共用於行動階段與反思模式)

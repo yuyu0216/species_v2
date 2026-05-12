@@ -30,56 +30,32 @@
     tile.className = "hd-tile hd-tile--" + habitat.id + (active ? " hd-tile--active" : "");
     tile.setAttribute("data-habitat-id", habitat.id);
 
-    // nametag
-    var nametag = document.createElement("div");
-    nametag.className = "hd-tile__nametag";
-    nametag.innerHTML =
-      window.hdIconSvg(habitat.id, 14) +
-      escapeHtml(habitat.name) +
-      '<span class="hd-tile__nametag-en">' + escapeHtml(habitat.enName) + '</span>';
-    tile.appendChild(nametag);
-
-    // 族群 pin 圖層
+    // 族群 pin 圖層(只顯示玩家自己的族群,其他物種對學生隱藏)
     var layer = document.createElement("div");
     layer.className = "hd-tile__species-layer";
 
     var species = window.HD_SPECIES;
-    for (var i = 0; i < species.length; i++) {
-      var sp = species[i];
-      var count = habitat.populations[sp.id] || 0;
-      if (count <= 0) continue;
-      var pinCount = Math.ceil(count / 10); // 每 10 隻 1 顆 pin
-      var positions = seededPositions(habitat.id + "-" + sp.id, pinCount);
+    var selfSp  = species.find(function (s) { return s.id === playerSpecies; });
+    var selfCount = habitat.populations[playerSpecies] || 0;
+    if (selfSp && selfCount > 0) {
+      var pinCount = Math.ceil(selfCount / 10); // 每 10 隻 1 顆 pin
+      var positions = seededPositions(habitat.id + "-" + selfSp.id, pinCount);
       for (var j = 0; j < positions.length; j++) {
         var p = positions[j];
-        var size = 9 + Math.min(7, count / 12);
-        var isSelf = sp.id === playerSpecies;
+        var size = 9 + Math.min(7, selfCount / 12);
         var pin = document.createElement("span");
-        pin.className = "hd-species-pin" + (isSelf ? " hd-species-pin--self" : "");
-        pin.setAttribute("data-species", sp.id);
+        pin.className = "hd-species-pin hd-species-pin--self";
+        pin.setAttribute("data-species", selfSp.id);
         pin.style.left = p.x + "%";
         pin.style.top  = p.y + "%";
         pin.style.width  = size + "px";
         pin.style.height = size + "px";
-        pin.style.background = sp.color;
-        pin.title = sp.name;
+        pin.style.background = selfSp.color;
+        pin.title = selfSp.name;
         layer.appendChild(pin);
       }
     }
     tile.appendChild(layer);
-
-    // 玩家自己族群數量(左下)
-    var ownPop = habitat.populations[playerSpecies] || 0;
-    if (ownPop > 0) {
-      var own = document.createElement("div");
-      own.className = "hd-tile__own";
-      var selfSpecies = species.find(function (s) { return s.id === playerSpecies; });
-      var color = selfSpecies ? selfSpecies.color : "var(--hd-ink)";
-      own.innerHTML =
-        '<span class="hd-tile__own-dot" style="background:' + color + '"></span>' +
-        '你 · <span class="hd-tile__own-num">' + ownPop + '</span> 隻';
-      tile.appendChild(own);
-    }
 
     tile.addEventListener("click", function () { onSelect(habitat.id); });
     return tile;

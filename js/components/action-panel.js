@@ -1,83 +1,119 @@
-// action-panel.js — 右欄行動面板
-// 四個行動可加入/移除佇列;遷移子選項 / 探索代號輸入暫不實作互動
+// action-panel.js — 行動選擇列(行動階段地圖下方,水平排列)
+// 點覓食/繁殖/探索:把該行動加進 state.queued(綁定當前 habitatId,可重複)
+// 點遷移卡內的「→相鄰棲地」小按鈕:加一筆 migrate(habitatId, targetHabitatId)
+// 不再有 toggle / disable 樣式,改由 queue-panel 點擊刪除
 
 (function () {
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function pushQueued(item) {
+    var current = (window.HD_STATE.get().queued || []).slice();
+    current.push(item);
+    window.HD_STATE.set({ queued: current });
+  }
+
+  // 渲染一張普通行動卡(覓食/繁殖/探索)
+  function renderActionCard(action, habitat, apLeft) {
+    var card = document.createElement("div");
+    var disabled = action.cost > apLeft;
+    card.className = "hd-action" + (disabled ? " hd-action--disabled" : "");
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", disabled ? "-1" : "0");
+    card.setAttribute("data-action", action.id);
+    card.innerHTML =
+      '<div class="hd-action__icon">' + window.hdIconSvg(action.icon, 18) + '</div>' +
+      '<div class="hd-action__body">' +
+        '<div class="hd-action__name">' + escapeHtml(action.name) + '</div>' +
+        '<div class="hd-action__desc">' + escapeHtml(action.desc) + '</div>' +
+      '</div>' +
+      '<div class="hd-action__cost">' + action.cost + '<small>AP</small></div>';
+
+    if (!disabled) {
+      card.addEventListener("click", function () {
+        pushQueued({
+          id:        action.id,
+          cost:      action.cost,
+          habitatId: habitat.id,
+        });
+      });
+    }
+    return card;
+  }
+
+  // 渲染遷移卡:卡本體不可點,內含兩顆「→相鄰棲地」小按鈕
+  function renderMigrateCard(action, habitat, apLeft) {
+    var card = document.createElement("div");
+    card.className = "hd-action hd-action--migrate";
+    card.setAttribute("data-action", action.id);
+
+    var targets = (habitat.adjacent || []).map(function (id) {
+      return window.HD_HABITATS.find(function (h) { return h.id === id; });
+    }).filter(Boolean);
+
+    var btnsHtml = targets.map(function (t) {
+      var disabled = action.cost > apLeft;
+      return (
+        '<button class="hd-action__sub" type="button" data-target="' + t.id + '"' +
+          (disabled ? ' disabled' : '') + '>' +
+          '<span class="hd-action__sub-arrow">→</span>' +
+          '<span class="hd-action__sub-name">' + escapeHtml(t.shortName || t.name) + '</span>' +
+        '</button>'
+      );
+    }).join("");
+
+    card.innerHTML =
+      '<div class="hd-action__icon">' + window.hdIconSvg(action.icon, 18) + '</div>' +
+      '<div class="hd-action__body">' +
+        '<div class="hd-action__name">' + escapeHtml(action.name) + '</div>' +
+        '<div class="hd-action__subs">' + btnsHtml + '</div>' +
+      '</div>' +
+      '<div class="hd-action__cost">' + action.cost + '<small>AP</small></div>';
+
+    var subs = card.querySelectorAll(".hd-action__sub");
+    subs.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (btn.disabled) return;
+        pushQueued({
+          id:              action.id,
+          cost:            action.cost,
+          habitatId:       habitat.id,
+          targetHabitatId: btn.getAttribute("data-target"),
+        });
+      });
+    });
+    return card;
+  }
+
   window.hdRenderActionPanel = function (state) {
     var habitat = window.HD_HABITATS.find(function (h) { return h.id === state.habitatId; });
     if (!habitat) habitat = window.HD_HABITATS[0];
 
-    var queued = state.queued || [];
-    var queuedCost = queued.reduce(function (s, q) { return s + q.cost; }, 0);
-    var canExecute = queued.length > 0 && queuedCost <= state.apRemain;
+    var queuedCost = (state.queued || []).reduce(function (s, q) { return s + q.cost; }, 0);
+    var apLeft = Math.max(0, state.apTotal - queuedCost);
 
-    var aside = document.createElement("aside");
-    aside.className = "hd-actions";
-    aside.style.setProperty("--hd-habitat-color", habitat.themeColor);
+    var section = document.createElement("section");
+    section.className = "hd-actbar";
+    section.style.setProperty("--hd-habitat-color", habitat.themeColor);
 
-    // banner
-    var banner = document.createElement("div");
-    banner.className = "hd-action-banner";
-    banner.innerHTML =
-      '<div class="hd-action-banner__lbl">於此棲地展開行動</div>' +
-      '<div class="hd-action-banner__name">' + habitat.name + '</div>';
-    aside.appendChild(banner);
+    // 標頭:只保留「於此棲地展開行動」小字,不顯示棲地名稱
+    var head = document.createElement("div");
+    head.className = "hd-actbar__head";
+    head.innerHTML = '<div class="hd-actbar__lbl">於此棲地展開行動</div>';
+    section.appendChild(head);
 
-    // list
-    var list = document.createElement("div");
-    list.className = "hd-action-list hd-scroll";
-
+    // 四張行動卡(垂直堆疊)
+    var row = document.createElement("div");
+    row.className = "hd-actbar__row";
     window.HD_ACTIONS.forEach(function (a) {
-      var q = queued.find(function (x) { return x.id === a.id; });
-      var isQueued = !!q;
-      var disabled = !isQueued && (a.cost > state.apRemain - queuedCost);
-
-      var row = document.createElement("div");
-      row.className = "hd-action" +
-        (isQueued ? " hd-action--queued" : "") +
-        (disabled ? " hd-action--disabled" : "");
-      row.setAttribute("role", "button");
-      row.setAttribute("tabindex", disabled ? "-1" : "0");
-      row.setAttribute("data-action", a.id);
-      row.innerHTML =
-        '<div class="hd-action__icon">' + window.hdIconSvg(a.icon, 18) + '</div>' +
-        '<div class="hd-action__body">' +
-          '<div class="hd-action__name">' + a.name + '</div>' +
-          '<div class="hd-action__desc">' + a.desc + '</div>' +
-        '</div>' +
-        '<div class="hd-action__cost">' +
-          a.cost + '<small>AP</small>' +
-        '</div>';
-
-      // TODO:遷移子選項與探索代號輸入,等執行流程確認後再補
-
-      if (!disabled) {
-        row.addEventListener("click", function () {
-          var current = state.queued.slice();
-          var idx = current.findIndex(function (x) { return x.id === a.id; });
-          if (idx >= 0) current.splice(idx, 1);
-          else current.push({ id: a.id, cost: a.cost });
-          window.HD_STATE.set({ queued: current });
-        });
-      }
-
-      list.appendChild(row);
+      if (a.id === "migrate") row.appendChild(renderMigrateCard(a, habitat, apLeft));
+      else                    row.appendChild(renderActionCard(a, habitat, apLeft));
     });
+    section.appendChild(row);
 
-    aside.appendChild(list);
-
-    // execute button
-    var btn = document.createElement("button");
-    btn.className = "hd-execute";
-    btn.disabled = !canExecute;
-    btn.innerHTML =
-      '<span>展開行動</span>' +
-      '<span class="hd-execute__cost">花費 ' + queuedCost + ' / ' + state.apRemain + ' AP</span>';
-    btn.addEventListener("click", function () {
-      // 暫接報告畫面;之後改 HD_API.postActions(queued)
-      window.HD_STATE.set({ screen: "report", reflectionMode: false, timerRunning: false });
-    });
-    aside.appendChild(btn);
-
-    return aside;
+    return section;
   };
 })();

@@ -14,42 +14,52 @@ window.HD_SPECIES = [
   { id: "purple", name: "紫色族群", color: "var(--hd-species-purple)", hex: "#8B5A9F" },
 ];
 
+// 棲地排列在 2×2 地圖上(左上 wetland / 右上 forest / 左下 urban / 右下 port)
+// adjacent 取邊相鄰(不含對角),用於遷移子按鈕
 window.HD_HABITATS = [
   {
     id: "wetland",
     name: "濕地農田",
+    shortName: "農田",
     enName: "",
     themeColor: "var(--hd-color-wetland)",
     capacity: 300,
     resources: { food: 15, water: 70, vegetation: 50 },
     populations: { red: 0, green: 50, yellow: 30, brown: 0, blue: 80, purple: 20 },
+    adjacent: ["forest", "urban"],
   },
   {
     id: "forest",
     name: "淺山森林",
+    shortName: "森林",
     enName: "",
     themeColor: "var(--hd-color-forest)",
     capacity: 280,
     resources: { food: 65, water: 45, vegetation: 88 },
     populations: { red: 40, green: 30, yellow: 10, brown: 60, blue: 0, purple: 35 },
+    adjacent: ["wetland", "port"],
   },
   {
     id: "urban",
     name: "都會公園",
+    shortName: "公園",
     enName: "",
     themeColor: "var(--hd-color-urban)",
     capacity: 220,
     resources: { food: 40, water: 35, vegetation: 25 },
     populations: { red: 20, green: 0, yellow: 50, brown: 30, blue: 10, purple: 0 },
+    adjacent: ["wetland", "port"],
   },
   {
     id: "port",
     name: "港口物流",
+    shortName: "港口",
     enName: "",
     themeColor: "var(--hd-color-port)",
     capacity: 250,
     resources: { food: 55, water: 80, vegetation: 18 },
     populations: { red: 10, green: 25, yellow: 0, brown: 15, blue: 45, purple: 40 },
+    adjacent: ["forest", "urban"],
   },
 ];
 

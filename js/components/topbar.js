@@ -5,6 +5,9 @@
   window.hdRenderTopBar = function (state) {
     var player = state.player || window.HD_PLAYER_DEFAULT;
     var timerSec = state.timerSeconds;
+    // 剩餘 AP = 總量 - 已選擇行動的累計花費(隨 queued 即時同步)
+    var queuedCost = (state.queued || []).reduce(function (s, q) { return s + (q.cost || 0); }, 0);
+    var apRemain = Math.max(0, state.apTotal - queuedCost);
     var timerCls = "hd-pill hd-pill--timer";
     if (timerSec <= 0) timerCls += " hd-pill--zero";
     else if (timerSec <= 60) timerCls += " hd-pill--low";
@@ -59,8 +62,8 @@
         // AP 環
         '<div class="hd-roundgauge">' +
           '<div class="hd-roundgauge__ring">' +
-            window.hdRoundGaugeSvg(state.apRemain, state.apTotal) +
-            '<div class="hd-roundgauge__center">' + state.apRemain + '</div>' +
+            window.hdRoundGaugeSvg(apRemain, state.apTotal) +
+            '<div class="hd-roundgauge__center">' + apRemain + '</div>' +
           '</div>' +
           '<div>' +
             '<div class="hd-roundgauge__meta">剩餘 AP</div>' +
