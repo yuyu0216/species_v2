@@ -1,7 +1,8 @@
-// survival-report.js — 第 8 頁:生存報告(已合併原本的「一般 / 反思」雙模式)
-// 版面固定為:左欄上下堆疊(族群變化 + 觸發事件) + 右欄 AI 對話
-// 頂部新增棲地分頁,只列出玩家族群數 > 0 的棲地。
-// CTA 直接顯示「結束反思」,結束後回到 action 畫面。
+// survival-report.js — 第 8 頁:生存報告(平板版三區式)
+// 版面:
+//   左 3/5 區:上=族群變化(+棲地分頁) | 觸發事件   下=偵查報告紀錄 | 新偵查報告內容
+//   右 2/5 區:AI 對話(縱向貫穿)
+// 頂部:回合 / 標題 / 統計;底部:結束反思 CTA
 
 (function () {
   var changeIcon = {
@@ -16,7 +17,6 @@
     negative: "hd-change--negative",
   };
 
-  // 取玩家族群數 > 0 的棲地清單(分頁來源)
   function playerHabitats(speciesId) {
     var list = [];
     for (var i = 0; i < window.HD_HABITATS.length; i++) {
@@ -27,17 +27,37 @@
     return list;
   }
 
-  // 取得指定棲地的本回合結算(若無,給安全空殼)
   function reportOfHabitat(habitatId) {
     var byHabitat = (window.HD_REPORT && window.HD_REPORT.habitats) || {};
     return byHabitat[habitatId] || { beforeCount: 0, afterCount: 0, changes: [] };
   }
 
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function renderHabitatTabs(habitats, currentId) {
+    var tabsHtml = "";
+    for (var i = 0; i < habitats.length; i++) {
+      var h = habitats[i];
+      var active = h.id === currentId;
+      tabsHtml +=
+        '<button type="button" class="hd-report-tab' + (active ? " hd-report-tab--active" : "") + '" ' +
+          'data-habitat-id="' + h.id + '" ' +
+          'style="--hd-habitat-color: ' + h.themeColor + '">' +
+          '<span class="hd-report-tab__icon">' + window.hdIconSvg(h.id, 14) + '</span>' +
+          '<span class="hd-report-tab__name">' + (h.shortName || h.name) + '</span>' +
+        '</button>';
+    }
+    return '<div class="hd-report-tabs">' + tabsHtml + '</div>';
+  }
+
   function renderChangesSection(habitatReport, habitat) {
     var rowsHtml = "";
     if (!habitatReport.changes.length) {
-      rowsHtml =
-        '<div class="hd-changes-empty">此棲地本回合沒有族群變化</div>';
+      rowsHtml = '<div class="hd-changes-empty">此棲地本回合沒有族群變化</div>';
     } else {
       for (var i = 0; i < habitatReport.changes.length; i++) {
         var c = habitatReport.changes[i];
@@ -106,43 +126,88 @@
     );
   }
 
-  // 棲地分頁列
-  function renderHabitatTabs(habitats, currentId) {
-    var tabsHtml = "";
-    for (var i = 0; i < habitats.length; i++) {
-      var h = habitats[i];
-      var active = h.id === currentId;
-      tabsHtml +=
-        '<button type="button" class="hd-report-tab' + (active ? " hd-report-tab--active" : "") + '" ' +
-          'data-habitat-id="' + h.id + '" ' +
-          'style="--hd-habitat-color: ' + h.themeColor + '">' +
-          '<span class="hd-report-tab__icon">' + window.hdIconSvg(h.id, 14) + '</span>' +
-          '<span class="hd-report-tab__name">' + (h.shortName || h.name) + '</span>' +
+  function roundLabel(n) {
+    var map = { 1: "第一回合", 2: "第二回合", 3: "第三回合", 4: "第四回合", 5: "第五回合" };
+    return map[n] || ("第 " + n + " 回合");
+  }
+
+  // 偵查報告紀錄列表(左下)
+  function renderReconList(logs, selectedId) {
+    var rowsHtml = "";
+    for (var i = 0; i < logs.length; i++) {
+      var log = logs[i];
+      var active = log.id === selectedId;
+      rowsHtml +=
+        '<button type="button" class="hd-recon-list__item' + (active ? " hd-recon-list__item--active" : "") + '" ' +
+          'data-recon-id="' + log.id + '">' +
+          '<span class="hd-recon-list__id">' + escapeHtml(log.id) + '</span>' +
+          '<span class="hd-recon-list__lbl">偵查報告</span>' +
+          '<span class="hd-recon-list__round">' + roundLabel(log.round) + '</span>' +
         '</button>';
     }
-    return '<div class="hd-report-tabs">' + tabsHtml + '</div>';
+    return (
+      '<section class="hd-recon-list" data-section="recon-list">' +
+        '<h3 class="hd-recon-list__title">偵查報告紀錄</h3>' +
+        '<div class="hd-recon-list__rows hd-scroll">' + rowsHtml + '</div>' +
+      '</section>'
+    );
+  }
+
+  // 偵查報告內容(右下)
+  function renderReconDetail(log) {
+    if (!log) {
+      return (
+        '<section class="hd-recon-detail hd-recon-detail--empty" data-section="recon-detail">' +
+          '<div class="hd-recon-detail__placeholder">尚無偵查報告</div>' +
+        '</section>'
+      );
+    }
+    var lines = String(log.content || "").split("\n").map(function (ln) {
+      return '<p class="hd-recon-detail__line">' + escapeHtml(ln) + '</p>';
+    }).join("");
+    var unlockedText = log.unlocked ? escapeHtml(log.unlocked) : "無";
+    var unlockedCls  = log.unlocked ? "hd-recon-detail__unlocked--has" : "hd-recon-detail__unlocked--none";
+    return (
+      '<section class="hd-recon-detail" data-section="recon-detail">' +
+        '<header class="hd-recon-detail__head">' +
+          '<span class="hd-recon-detail__id">' + escapeHtml(log.id) + '</span>' +
+          '<h3 class="hd-recon-detail__title">' + escapeHtml(log.title || "新的偵查報告") + '</h3>' +
+          '<span class="hd-recon-detail__round">' + roundLabel(log.round) + '</span>' +
+        '</header>' +
+        '<div class="hd-recon-detail__body hd-scroll">' + lines + '</div>' +
+        '<footer class="hd-recon-detail__foot ' + unlockedCls + '">' +
+          '<span class="hd-recon-detail__foot-lbl">解鎖性狀</span>' +
+          '<span class="hd-recon-detail__foot-val">' + unlockedText + '</span>' +
+        '</footer>' +
+      '</section>'
+    );
   }
 
   window.hdRenderReport = function (state) {
     var report = window.HD_REPORT;
 
-    // 找出玩家有族群的棲地;若空(理論上不該發生),退回全部棲地
+    // 棲地分頁
     var habitats = playerHabitats(state.species);
     if (!habitats.length) habitats = window.HD_HABITATS.slice();
-
-    // 決定當前分頁(state 沒指定或指定的不在玩家棲地清單就重挑)
     var currentId = state.reportHabitatId;
     var isValid = currentId && habitats.some(function (h) { return h.id === currentId; });
     if (!isValid) currentId = habitats[0].id;
     var habitat = habitats.find(function (h) { return h.id === currentId; });
     var habitatReport = reportOfHabitat(currentId);
 
-    // 根節點固定走原本的反思版面(已移除一般模式)
+    // 偵查報告(預設選最新一筆,即 logs[0])
+    var logs = (window.HD_REPORT_LOGS || []).slice();
+    var selectedLogId = state.selectedReportLogId;
+    var validLog = selectedLogId && logs.some(function (l) { return l.id === selectedLogId; });
+    if (!validLog) selectedLogId = logs.length ? logs[0].id : null;
+    var selectedLog = logs.find(function (l) { return l.id === selectedLogId; });
+
+    // 根節點
     var root = document.createElement("div");
     root.className = "hd-report hd-report--reflection";
     root.style.setProperty("--hd-habitat-color", habitat.themeColor);
 
-    // head(共用)
+    // 頂部 head(跨整個寬度)
     var head = document.createElement("header");
     head.className = "hd-report__head";
     head.innerHTML =
@@ -169,17 +234,41 @@
       '</div>';
     root.appendChild(head);
 
-    // 左欄:棲地分頁 + 上下堆疊(變化 + 事件)
-    var leftStack = document.createElement("div");
-    leftStack.className = "hd-report__left-stack";
-    leftStack.innerHTML =
-      renderHabitatTabs(habitats, currentId) +
-      renderChangesSection(habitatReport, habitat) +
-      renderEventSection(report);
-    root.appendChild(leftStack);
+    // 左 3/5 區:上(變化 + 事件)、下(偵查列表 + 內容)
+    var main = document.createElement("div");
+    main.className = "hd-report__main";
 
-    // 分頁點擊切換
-    var tabBtns = leftStack.querySelectorAll(".hd-report-tab");
+    var topRow = document.createElement("div");
+    topRow.className = "hd-report__top";
+
+    // 變化(含棲地分頁)
+    var changesWrap = document.createElement("div");
+    changesWrap.className = "hd-report__changes-wrap";
+    changesWrap.innerHTML =
+      renderHabitatTabs(habitats, currentId) +
+      renderChangesSection(habitatReport, habitat);
+    topRow.appendChild(changesWrap);
+
+    // 事件
+    var eventWrap = document.createElement("div");
+    eventWrap.innerHTML = renderEventSection(report);
+    topRow.appendChild(eventWrap.firstElementChild);
+
+    main.appendChild(topRow);
+
+    // 下:偵查列表 + 內容
+    var botRow = document.createElement("div");
+    botRow.className = "hd-report__bot";
+    botRow.innerHTML = renderReconList(logs, selectedLogId);
+    var detailWrap = document.createElement("div");
+    detailWrap.innerHTML = renderReconDetail(selectedLog);
+    botRow.appendChild(detailWrap.firstElementChild);
+    main.appendChild(botRow);
+
+    root.appendChild(main);
+
+    // 分頁 / 偵查列表點擊
+    var tabBtns = main.querySelectorAll(".hd-report-tab");
     for (var i = 0; i < tabBtns.length; i++) {
       tabBtns[i].addEventListener("click", function () {
         var id = this.getAttribute("data-habitat-id");
@@ -188,11 +277,23 @@
         }
       });
     }
+    var reconBtns = main.querySelectorAll(".hd-recon-list__item");
+    for (var j = 0; j < reconBtns.length; j++) {
+      reconBtns[j].addEventListener("click", function () {
+        var id = this.getAttribute("data-recon-id");
+        if (id !== window.HD_STATE.get().selectedReportLogId) {
+          window.HD_STATE.set({ selectedReportLogId: id });
+        }
+      });
+    }
 
-    // 右欄:複用 chat 元件
-    root.appendChild(window.hdRenderChat(state, "reflection"));
+    // 右 2/5 區:AI 對話
+    var chatAside = document.createElement("aside");
+    chatAside.className = "hd-report__chat";
+    chatAside.appendChild(window.hdRenderChat(state, "reflection"));
+    root.appendChild(chatAside);
 
-    // 底部 CTA(結束反思)
+    // 底部 CTA
     var cta = document.createElement("div");
     cta.className = "hd-report-cta";
     cta.innerHTML =
@@ -202,11 +303,11 @@
       '</div>' +
       '<button class="hd-report-cta__btn hd-report-cta__btn--ghost" type="button">結束反思</button>';
     cta.querySelector("button").addEventListener("click", function () {
-      // 結束反思:回到 action 畫面,重置倒數與 queued
       window.HD_STATE.set({
         screen: "action",
         reflectionMode: false,
         reportHabitatId: null,
+        selectedReportLogId: null,
         timerSeconds: 300,
         timerRunning: true,
         queued: [],

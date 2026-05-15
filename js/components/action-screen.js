@@ -16,7 +16,7 @@
     var botrow = document.createElement("div");
     botrow.className = "hd-botrow";
     botrow.appendChild(window.hdRenderHabitatDetail(state));
-    botrow.appendChild(window.hdRenderPopAndTraits(state));
+    botrow.appendChild(window.hdRenderMyStatus(state));
     botrow.appendChild(window.hdRenderChat(state, "action"));
     main.appendChild(botrow);
 

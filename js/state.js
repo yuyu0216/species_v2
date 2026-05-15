@@ -24,6 +24,9 @@
     ],
     reflectionMode: false,          // 生存報告中的反思模式開關(已移除中間步驟,但保留欄位以相容)
     reportHabitatId: null,          // 生存報告當前查看的棲地分頁(null = 渲染時自動挑第一個玩家有族群的棲地)
+    playerFood: 2,                  // 我擁有的糧食(mock,之後 GAS 補)
+    playerAdaptation: "良好",       // 適應程度(mock,之後 GAS 補)
+    selectedReportLogId: null,      // 生存報告 — 當前選中的偵查報告 id(null = 渲染時挑最新一筆)
   };
 
   var listeners = [];

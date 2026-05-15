@@ -65,8 +65,12 @@ window.HD_HABITATS = [
 
 window.HD_TRAITS = {
   unlocked: [
-    { id: "fast-breed",     name: "快速繁殖", habitat: "wetland" },
-    { id: "water-affinity", name: "親水性",   habitat: "wetland" },
+    { id: "fast-breed",     name: "快速繁殖",   habitat: "wetland" },
+    { id: "water-affinity", name: "親水性",     habitat: "wetland" },
+    { id: "omnivore",       name: "雜食性",     habitat: "wetland" },
+    { id: "social",         name: "群居",       habitat: "wetland" },
+    { id: "long-distance",  name: "長距離遷徙", habitat: "wetland" },
+    { id: "heat-tolerant",  name: "耐熱",       habitat: "wetland" },
   ],
   locked: [
     { id: "camouflage",   name: "保護色",   hint: "達成 80 隻時解鎖" },
@@ -80,6 +84,8 @@ window.HD_PLAYER_DEFAULT = {
   name: "王大名",
   species: "blue", // 玩家自己看得到,但畫面上不直接揭露物種名稱
   totalPop: 130,
+  food: 2,         // 我擁有的糧食(mock)
+  adaptation: "良好", // 對此棲地的適應程度(mock,之後由後端依資源/性狀算)
 };
 
 window.HD_GAME = {
@@ -154,3 +160,45 @@ window.HD_REPORT = {
     },
   },
 };
+
+// 偵查報告紀錄(每回合執行「探索」會新增一筆)
+// id 以兩位數字串顯示在列表上,round 是取得回合
+// content 是 AI 回吐的描述,unlocked 為解鎖性狀名稱(null 代表無)
+window.HD_REPORT_LOGS = [
+  {
+    id: "06", round: 2,
+    title: "黃色族群動向",
+    content: "發現黃色族群好像在攻擊我們!\n好可怕!\n他非常龐大,我們很難抵抗他…",
+    unlocked: null,
+  },
+  {
+    id: "05", round: 2,
+    title: "森林邊界異常",
+    content: "淺山森林傳來奇怪的低鳴聲。\n夜間活動的動物變多了。",
+    unlocked: null,
+  },
+  {
+    id: "04", round: 2,
+    title: "水源觀察",
+    content: "濕地的水位略為下降。\n如果繼續乾旱,水源百分比會持續掉。",
+    unlocked: "親水性",
+  },
+  {
+    id: "03", round: 1,
+    title: "鄰居族群",
+    content: "綠色族群在附近築巢,似乎不具敵意。",
+    unlocked: null,
+  },
+  {
+    id: "02", round: 1,
+    title: "食物來源",
+    content: "農田附近有大量穀物,適合覓食。",
+    unlocked: "快速繁殖",
+  },
+  {
+    id: "01", round: 1,
+    title: "初步勘查",
+    content: "這片棲地的承載量似乎還有空間。",
+    unlocked: null,
+  },
+];

@@ -1,7 +1,6 @@
 // side-panel.js — 底列左右兩張卡的內容
-// hdRenderHabitatDetail:選中棲地的「總覽 + 食物/水/植被資源」
-// hdRenderPopAndTraits :選中棲地的「族群分布 + 已解鎖性狀」
-// (原本 hdRenderSidePanel 整合在左側欄,平板版改成底列分兩張卡)
+// hdRenderHabitatDetail:選中棲地的「總覽 + 食物/水/植被資源 + 族群分佈(2 欄,不標註你)」
+// hdRenderMyStatus    :我的狀態(數量/糧食/適應)+ 已解鎖性狀
 
 (function () {
   function resourceLevel(pct) {
@@ -33,11 +32,29 @@
     return h || window.HD_HABITATS[0];
   }
 
-  // ── 棲地詳情卡(底列第一張) ──
+  // ── 底列第一張:棲地詳情 + 族群分佈(2 欄) ──
   window.hdRenderHabitatDetail = function (state) {
     var habitat = currentHabitat(state);
     var total = 0;
     for (var k in habitat.populations) total += habitat.populations[k];
+
+    // 族群分佈:依數量排序,過濾掉 0 隻的;不再標註「· 你」
+    var popRows = window.HD_SPECIES
+      .map(function (sp) { return { sp: sp, count: habitat.populations[sp.id] || 0 }; })
+      .filter(function (r) { return r.count > 0; })
+      .sort(function (a, b) { return b.count - a.count; });
+
+    var rowsHtml = "";
+    for (var i = 0; i < popRows.length; i++) {
+      var sp = popRows[i].sp;
+      var count = popRows[i].count;
+      rowsHtml +=
+        '<div class="hd-popmini__row" data-species="' + sp.id + '">' +
+          '<span class="hd-popmini__dot" style="background:' + sp.color + '"></span>' +
+          '<span class="hd-popmini__name">' + sp.name + '</span>' +
+          '<span class="hd-popmini__num">' + count + '</span>' +
+        '</div>';
+    }
 
     var section = document.createElement("section");
     section.className = "hd-card hd-detail";
@@ -55,35 +72,23 @@
         renderResource("food",       "食物", habitat.resources.food) +
         renderResource("water",      "水源", habitat.resources.water) +
         renderResource("vegetation", "植被", habitat.resources.vegetation) +
+      '</div>' +
+      '<div class="hd-popmini">' +
+        '<h3 class="hd-popmini__title">族群分佈</h3>' +
+        '<div class="hd-popmini__rows hd-popmini__rows--2col">' + rowsHtml + '</div>' +
       '</div>';
+
     return section;
   };
 
-  // ── 族群分布 + 已解鎖性狀卡(底列第二張) ──
-  window.hdRenderPopAndTraits = function (state) {
+  // ── 底列第二張:我的狀態(數量/糧食/適應) + 已解鎖性狀 ──
+  window.hdRenderMyStatus = function (state) {
     var habitat = currentHabitat(state);
+    var myCount = (habitat.populations && habitat.populations[state.species]) || 0;
+    var food = state.playerFood != null ? state.playerFood : 0;
+    var adapt = state.playerAdaptation || "—";
 
-    // 族群分布列(依數量排序)
-    var popRows = window.HD_SPECIES
-      .map(function (sp) { return { sp: sp, count: habitat.populations[sp.id] || 0 }; })
-      .sort(function (a, b) { return b.count - a.count; });
-
-    var rowsHtml = "";
-    for (var i = 0; i < popRows.length; i++) {
-      var sp = popRows[i].sp;
-      var count = popRows[i].count;
-      var isSelf = sp.id === state.species;
-      rowsHtml +=
-        '<div class="hd-popmini__row' + (isSelf ? " hd-popmini__row--self" : "") + '" data-species="' + sp.id + '">' +
-          '<span class="hd-popmini__dot" style="background:' + sp.color + '"></span>' +
-          '<span class="hd-popmini__name' + (isSelf ? " hd-popmini__name--self" : "") + '">' +
-            sp.name + (isSelf ? " · 你" : "") +
-          '</span>' +
-          '<span class="hd-popmini__num">' + count + '</span>' +
-        '</div>';
-    }
-
-    // 性狀(只顯示已解鎖,未解鎖不揭露給學生)
+    // 性狀(只顯示已解鎖)
     var u = window.HD_TRAITS.unlocked;
     var traitsHtml = "";
     for (var j = 0; j < u.length; j++) {
@@ -97,14 +102,28 @@
     }
 
     var section = document.createElement("section");
-    section.className = "hd-card";
+    section.className = "hd-card hd-mystatus";
     section.innerHTML =
-      '<h3 class="hd-section-title">族群分布</h3>' +
-      '<div class="hd-popmini__rows">' + rowsHtml + '</div>' +
+      '<h3 class="hd-section-title">我的狀態</h3>' +
+      '<div class="hd-mystatus__rows">' +
+        '<div class="hd-mystatus__row">' +
+          '<span class="hd-mystatus__lbl">數量</span>' +
+          '<span class="hd-mystatus__val">' + myCount + '</span>' +
+        '</div>' +
+        '<div class="hd-mystatus__row">' +
+          '<span class="hd-mystatus__lbl">糧食</span>' +
+          '<span class="hd-mystatus__val">' + food + '</span>' +
+        '</div>' +
+        '<div class="hd-mystatus__row">' +
+          '<span class="hd-mystatus__lbl">適應</span>' +
+          '<span class="hd-mystatus__val hd-mystatus__val--text">' + adapt + '</span>' +
+        '</div>' +
+      '</div>' +
       '<div class="hd-traits__divider">' +
         '<div class="hd-section-label">已解鎖性狀</div>' +
         '<div class="hd-traits__list">' + traitsHtml + '</div>' +
       '</div>';
+
     return section;
   };
 })();

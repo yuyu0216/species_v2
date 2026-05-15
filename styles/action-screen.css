@@ -18,16 +18,17 @@
 /* ---------- 左大欄 ---------- */
 .hd-main {
   display: grid;
-  grid-template-rows: minmax(0, 1.65fr) minmax(0, 1fr);
+  /* 把底列拉到 1.4/1 的比例,讓左卡可以塞下「資源 + 族群分佈 2 欄」 */
+  grid-template-rows: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 14px;
   min-height: 0;
   min-width: 0;
 }
 
-/* 底列 — 三張卡 */
+/* 底列 — 三張卡(左:資源+族群分佈 / 中:我的狀態 / 右:AI 對話) */
 .hd-botrow {
   display: grid;
-  grid-template-columns: 1.05fr 1fr 1.5fr;
+  grid-template-columns: 1.2fr 0.9fr 1.5fr;
   gap: 14px;
   min-height: 0;
   min-width: 0;
@@ -36,10 +37,10 @@
   background: var(--hd-card);
   border: 1px solid var(--hd-line-soft);
   border-radius: var(--hd-radius-lg);
-  padding: 16px 18px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
@@ -47,10 +48,10 @@
 .hd-botrow > .hd-chat { padding: 0; }
 
 /* ── 棲地詳情卡 ── */
-.hd-detail__head { display: flex; align-items: center; gap: 12px; }
+.hd-detail__head { display: flex; align-items: center; gap: 10px; }
 .hd-detail__icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
+  width: 38px; height: 38px;
+  border-radius: 10px;
   background: var(--hd-habitat-color, var(--hd-color-wetland));
   color: white;
   display: grid; place-items: center;
@@ -58,38 +59,38 @@
 }
 .hd-detail__name {
   font-family: var(--hd-font-display);
-  font-weight: 700; font-size: 24px;
+  font-weight: 700; font-size: 21px;
   color: var(--hd-ink); line-height: 1.05;
   white-space: nowrap;
 }
 .hd-detail__capacity {
-  font-size: 14px; color: var(--hd-ink-muted);
-  margin-top: 4px; white-space: nowrap;
+  font-size: 13px; color: var(--hd-ink-muted);
+  margin-top: 3px; white-space: nowrap;
 }
 .hd-detail__capacity strong {
   font-family: var(--hd-font-display);
-  font-size: 18px; font-weight: 700;
+  font-size: 16px; font-weight: 700;
   color: var(--hd-ink-soft);
   margin: 0 2px;
 }
 
 /* 資源條 */
-.hd-resources { display: flex; flex-direction: column; gap: 11px; }
-.hd-resource { display: flex; flex-direction: column; gap: 6px; }
+.hd-resources { display: flex; flex-direction: column; gap: 5px; }
+.hd-resource { display: flex; flex-direction: column; gap: 3px; }
 .hd-resource__head { display: flex; align-items: center; justify-content: space-between; }
 .hd-resource__label {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 15px; font-weight: 500;
+  display: flex; align-items: center; gap: 7px;
+  font-size: 14px; font-weight: 500;
   color: var(--hd-ink-soft);
 }
 .hd-resource__icon {
-  width: 22px; height: 22px;
+  width: 20px; height: 20px;
   display: grid; place-items: center;
   color: var(--hd-ink-soft);
 }
 .hd-resource__pct {
   font-family: var(--hd-font-display);
-  font-weight: 700; font-size: 21px;
+  font-weight: 700; font-size: 19px;
   color: var(--hd-ink);
   font-variant-numeric: tabular-nums;
 }
@@ -98,66 +99,111 @@
   font-weight: 500; margin-left: 2px;
 }
 .hd-resource__bar {
-  height: 8px;
+  height: 6px;
   background: var(--hd-paper-dark);
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
 }
 .hd-resource__bar-fill {
-  height: 100%; border-radius: 4px;
+  height: 100%; border-radius: 3px;
   transition: width .4s ease;
 }
 .hd-resource--low  .hd-resource__bar-fill { background: var(--hd-danger); }
 .hd-resource--mid  .hd-resource__bar-fill { background: var(--hd-warning); }
 .hd-resource--high .hd-resource__bar-fill { background: var(--hd-success); }
 
-/* ── 族群分布 + 性狀卡 ── */
+/* ── 族群分佈(底列左卡內) ── */
 .hd-section-title {
   font-family: var(--hd-font-display);
   font-weight: 700; font-size: 18px;
   color: var(--hd-ink); margin: 0;
 }
-.hd-popmini__rows { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+.hd-popmini {
+  display: flex; flex-direction: column;
+  gap: 3px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--hd-line);
+}
+.hd-popmini__title {
+  font-family: var(--hd-font-display);
+  font-weight: 700; font-size: 14px;
+  color: var(--hd-ink); margin: 0;
+}
+.hd-popmini__rows { display: flex; flex-direction: column; gap: 2px; min-height: 0; }
+/* 2 欄版(底列左卡用):列以 grid 平均填兩欄,自動換行 */
+.hd-popmini__rows--2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+  row-gap: 1px;
+}
 .hd-popmini__row {
   display: grid;
-  grid-template-columns: 14px 1fr auto;
+  grid-template-columns: 11px 1fr auto;
   align-items: center;
-  gap: 10px;
-  padding: 5px 0;
+  gap: 7px;
+  padding: 2px 0;
+  min-width: 0;
 }
-.hd-popmini__row--self {
-  background: var(--hd-paper);
-  margin: 0 -8px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  border: 1px dashed var(--hd-ink-soft);
+.hd-popmini__dot { width: 10px; height: 10px; border-radius: 999px; flex-shrink: 0; }
+.hd-popmini__name {
+  font-size: 13px; color: var(--hd-ink-soft);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.hd-popmini__dot { width: 14px; height: 14px; border-radius: 999px; }
-.hd-popmini__name { font-size: 14px; color: var(--hd-ink-soft); white-space: nowrap; }
-.hd-popmini__name--self { font-weight: 700; color: var(--hd-ink); }
 .hd-popmini__num {
   font-family: var(--hd-font-mono);
-  font-weight: 600; font-size: 15px;
+  font-weight: 600; font-size: 14px;
   color: var(--hd-ink);
   font-variant-numeric: tabular-nums;
 }
 
+/* ── 我的狀態卡(底列中卡) ── */
+.hd-mystatus__rows {
+  display: flex; flex-direction: column;
+  gap: 2px;
+}
+.hd-mystatus__row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 5px 2px;
+  border-bottom: 1px dashed var(--hd-line-soft);
+}
+.hd-mystatus__row:last-child { border-bottom: 0; }
+.hd-mystatus__lbl {
+  font-family: var(--hd-font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--hd-ink-soft);
+  letter-spacing: .04em;
+}
+.hd-mystatus__val {
+  font-family: var(--hd-font-display);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--hd-ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.hd-mystatus__val--text {
+  font-size: 17px;
+  color: var(--hd-success);
+}
+
 .hd-traits__divider {
   border-top: 1px dashed var(--hd-line);
-  padding-top: 10px;
+  padding-top: 7px;
   margin-top: auto;
 }
 .hd-traits__divider .hd-section-label {
   font-size: 13px; letter-spacing: .14em;
   color: var(--hd-ink-muted); font-weight: 700;
-  margin: 0 0 8px; padding: 0;
+  margin: 0 0 5px; padding: 0;
 }
 .hd-traits__list {
-  display: flex; gap: 8px; flex-wrap: wrap;
+  display: flex; gap: 5px; flex-wrap: wrap;
 }
 .hd-trait {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 12px 6px 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px 4px 8px;
   background: var(--hd-card-soft);
   border: 1px solid var(--hd-line);
   border-radius: 999px;
@@ -165,7 +211,7 @@
   white-space: nowrap;
 }
 .hd-trait__dot {
-  width: 8px; height: 8px; border-radius: 999px;
+  width: 7px; height: 7px; border-radius: 999px;
   background: var(--hd-success);
 }
 .hd-trait--locked { opacity: .45; border-style: dashed; }
