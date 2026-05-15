@@ -54,10 +54,10 @@
   --hd-shadow:    0 3px 8px rgba(60,46,20,.08), 0 1px 3px rgba(60,46,20,.06);
   --hd-shadow-lg: 0 16px 40px rgba(60,46,20,.14), 0 6px 12px rgba(60,46,20,.06);
 
-  /* 舞台尺寸(1180×820) */
-  --hd-stage-w: 1180px;
-  --hd-stage-h: 820px;
-  --hd-topbar-h: 100px;
+  /* 舞台尺寸(平板版 1366×900) */
+  --hd-stage-w: 1366px;
+  --hd-stage-h: 900px;
+  --hd-topbar-h: 72px;
 }
 
 * { box-sizing: border-box; }
@@ -67,7 +67,7 @@ html, body {
   background: var(--hd-paper);
   font-family: var(--hd-font-sans);
   color: var(--hd-ink);
-  font-size: 19px;
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   /* 視窗鎖在 100vh,杜絕 body 因為 stage layout box 而撐高 */
@@ -108,8 +108,8 @@ html, body {
    通用 pill / section label / scrollbar
    ============================================================ */
 .hd-pill {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 8px 16px;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 9px 18px;
   background: var(--hd-card);
   border: 1px solid var(--hd-line);
   border-radius: 999px;
@@ -118,8 +118,8 @@ html, body {
   white-space: nowrap;
 }
 .hd-pill__label {
-  font-size: 12px;
-  letter-spacing: .14em;
+  font-size: 13px;
+  letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--hd-ink-muted);
   white-space: nowrap;
@@ -131,8 +131,8 @@ html, body {
 }
 
 .hd-section-label {
-  font-size: 12px;
-  letter-spacing: .18em;
+  font-size: 13px;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--hd-ink-muted);
   font-weight: 700;

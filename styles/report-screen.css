@@ -1,7 +1,7 @@
 /* ============================================================
-   生存報告 — 一般模式 / 反思模式
-   一般模式:左數量變化 + 右觸發事件
-   反思模式:左上下堆疊(變化+事件)+ 右 AI 對話
+   生存報告 — 反思模式(已合併)
+   左:上下堆疊(棲地分頁 + 變化 + 事件) / 右:AI 對話
+   原始尺寸,小字最低 13px
    ============================================================ */
 
 .hd-report {
@@ -13,9 +13,10 @@
   grid-template-columns: 1.15fr 1fr;
   grid-template-rows: auto 1fr auto;
   gap: 18px;
+  overflow: hidden;
 }
 
-/* 反思模式:整個畫面更緊湊;左欄上下堆疊(變化+事件)、右欄改 AI 對話 */
+/* 反思模式版面(現為唯一版面):左欄上下堆疊、右欄 AI 對話 */
 .hd-report--reflection {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto 1fr auto;
@@ -121,14 +122,14 @@
 .hd-report--reflection .hd-report__round small { font-size: 14px; margin-left: 4px; }
 .hd-report__title-stack { display: flex; flex-direction: column; gap: 3px; }
 .hd-report__kicker {
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--hd-ink-muted);
   font-weight: 700;
   white-space: nowrap;
 }
-.hd-report--reflection .hd-report__kicker { font-size: 11px; }
+.hd-report--reflection .hd-report__kicker { font-size: 13px; }
 .hd-report__title {
   font-family: var(--hd-font-display);
   font-size: 29px;
@@ -153,13 +154,13 @@
   gap: 2px;
 }
 .hd-stat-card__lbl {
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--hd-ink-muted);
   font-weight: 600;
 }
-.hd-report--reflection .hd-stat-card__lbl { font-size: 10px; }
+.hd-report--reflection .hd-stat-card__lbl { font-size: 13px; }
 .hd-stat-card__val {
   font-family: var(--hd-font-display);
   font-weight: 700;
@@ -197,7 +198,7 @@
   width: 30px; height: 30px;
 }
 .hd-report--reflection .hd-report-changes__habitat { font-size: 18px; }
-.hd-report--reflection .hd-report-changes__numline { font-size: 12px; }
+.hd-report--reflection .hd-report-changes__numline { font-size: 13px; }
 .hd-report--reflection .hd-report-changes__numline strong { font-size: 16px; }
 
 .hd-report--reflection .hd-change {
@@ -207,14 +208,14 @@
 }
 .hd-report--reflection .hd-change__icon  { width: 30px; height: 30px; border-radius: 8px; }
 .hd-report--reflection .hd-change__name  { font-size: 15px; }
-.hd-report--reflection .hd-change__detail{ font-size: 11px; }
+.hd-report--reflection .hd-change__detail{ font-size: 13px; }
 .hd-report--reflection .hd-change__delta { font-size: 15px; }
 
 .hd-report--reflection .hd-changes-final {
   margin-top: 4px;
   padding: 8px 12px;
 }
-.hd-report--reflection .hd-changes-final__lbl   { font-size: 10px; }
+.hd-report--reflection .hd-changes-final__lbl   { font-size: 13px; }
 .hd-report--reflection .hd-changes-final__from  { font-size: 14px; }
 .hd-report--reflection .hd-changes-final__arrow { font-size: 13px; }
 .hd-report--reflection .hd-changes-final__to    { font-size: 24px; }
@@ -295,7 +296,7 @@
   display: flex; align-items: center; justify-content: space-between;
 }
 .hd-changes-final__lbl {
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--hd-ink-muted);
@@ -336,15 +337,15 @@
   gap: 6px;
 }
 .hd-report--reflection .hd-event__head { gap: 8px; }
-.hd-report--reflection .hd-event__badge { padding: 3px 8px; font-size: 10px; }
-.hd-report--reflection .hd-event__location { font-size: 11px; padding: 2px 7px; }
+.hd-report--reflection .hd-event__badge { padding: 4px 9px; font-size: 13px; }
+.hd-report--reflection .hd-event__location { font-size: 13px; padding: 3px 8px; }
 .hd-report--reflection .hd-event-effect {
   padding: 5px 0;
-  font-size: 12px;
+  font-size: 13px;
   gap: 8px;
 }
 .hd-report--reflection .hd-event-effect__delta { font-size: 13px; }
-.hd-report--reflection .hd-event-effect__sub { font-size: 10px; }
+.hd-report--reflection .hd-event-effect__sub { font-size: 13px; }
 .hd-event::before {
   content: "";
   position: absolute; inset: 0;
@@ -357,7 +358,7 @@
   display: flex; align-items: center; gap: 10px; position: relative;
 }
 .hd-event__badge {
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: .2em;
   text-transform: uppercase;
   background: rgba(232, 224, 204, .12);
@@ -379,7 +380,7 @@
 .hd-report--reflection .hd-event__title { font-size: 16px; line-height: 1.18; }
 .hd-event__location {
   font-family: var(--hd-font-mono);
-  font-size: 12px;
+  font-size: 13px;
   color: rgba(232, 224, 204, .85);
   background: rgba(232, 224, 204, .08);
   padding: 3px 9px;
@@ -430,7 +431,7 @@
 .hd-event-effect__sub {
   color: rgba(232,224,204,.55);
   margin-left: 6px;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 /* 底部 CTA */
@@ -461,7 +462,7 @@
   margin-top: 4px;
   font-weight: 400;
 }
-.hd-report--reflection .hd-report-cta__text small { font-size: 11px; margin-top: 2px; }
+.hd-report--reflection .hd-report-cta__text small { font-size: 13px; margin-top: 2px; }
 .hd-report-cta__btn {
   background: var(--hd-accent);
   color: white;

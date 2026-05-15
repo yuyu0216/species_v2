@@ -1,5 +1,5 @@
 /* ============================================================
-   登入畫面 — 沿用米色紙張底 + 深墨色 + Fraunces 標題
+   登入畫面(原始尺寸,小字最低 13px)
    ============================================================ */
 
 .hd-login {
@@ -50,7 +50,7 @@
   letter-spacing: .01em;
 }
 .hd-login__kicker {
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--hd-ink-muted);
@@ -121,7 +121,7 @@
   opacity: .65;
 }
 
-/* 錯誤訊息(預設隱藏,is-visible 才顯示) */
+/* 錯誤訊息 */
 .hd-login__error {
   display: none;
   padding: 11px 14px;

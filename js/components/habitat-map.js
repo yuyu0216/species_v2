@@ -30,13 +30,26 @@
     tile.className = "hd-tile hd-tile--" + habitat.id + (active ? " hd-tile--active" : "");
     tile.setAttribute("data-habitat-id", habitat.id);
 
-    // 族群 pin 圖層(只顯示玩家自己的族群,其他物種對學生隱藏)
-    var layer = document.createElement("div");
-    layer.className = "hd-tile__species-layer";
-
     var species = window.HD_SPECIES;
     var selfSp  = species.find(function (s) { return s.id === playerSpecies; });
     var selfCount = habitat.populations[playerSpecies] || 0;
+
+    // 左上角「你的族群:N」徽章(顏色點對應玩家物種色)
+    var badge = document.createElement("span");
+    badge.className = "hd-tile__badge";
+    badge.style.setProperty("--hd-self-color", selfSp ? selfSp.color : "var(--hd-ink-soft)");
+    badge.textContent = "你的族群:" + selfCount;
+    tile.appendChild(badge);
+
+    // 右上角棲地名稱
+    var name = document.createElement("span");
+    name.className = "hd-tile__name";
+    name.textContent = habitat.name;
+    tile.appendChild(name);
+
+    // 族群 pin 圖層(只顯示玩家自己的族群,其他物種對學生隱藏)
+    var layer = document.createElement("div");
+    layer.className = "hd-tile__species-layer";
     if (selfSp && selfCount > 0) {
       var pinCount = Math.ceil(selfCount / 10); // 每 10 隻 1 顆 pin
       var positions = seededPositions(habitat.id + "-" + selfSp.id, pinCount);

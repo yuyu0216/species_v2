@@ -1,6 +1,6 @@
 /* ============================================================
    TopBar — 頂部玩家狀態列
-   高度 100px(原 124px),所有字級依 1180×820 同比縮小
+   高度 72px(平板版),小字最低 13px
    ============================================================ */
 
 .hd-topbar {
@@ -24,7 +24,7 @@
   color: var(--hd-paper);
   display: grid; place-items: center;
   font-family: var(--hd-font-display);
-  font-weight: 700; font-size: 25px;
+  font-weight: 700; font-size: 26px;
   position: relative;
 }
 .hd-topbar__logo::after {
@@ -37,7 +37,7 @@
 .hd-topbar__title {
   font-family: var(--hd-font-display);
   font-weight: 700;
-  font-size: 25px;
+  font-size: 26px;
   letter-spacing: .02em;
   color: var(--hd-ink);
   margin: 0;
@@ -45,16 +45,16 @@
   white-space: nowrap;
 }
 .hd-topbar__subtitle {
-  font-size: 12px;
-  letter-spacing: .12em;
+  font-size: 13px;
+  letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--hd-ink-muted);
-  margin-top: 2px;
+  margin-top: 3px;
   white-space: nowrap;
 }
 
 .hd-topbar__player {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; gap: 10px;
   justify-content: flex-end;
 }
 
@@ -64,13 +64,13 @@
   border-color: var(--hd-warning);
   color: var(--hd-warning);
   font-family: var(--hd-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: .14em;
   padding: 5px 10px;
 }
 
-/* 倒數計時 pill — 同 hd-pill 但寬度固定避免抖動 */
+/* 倒數計時 pill */
 .hd-pill--timer .hd-pill__value {
   font-family: var(--hd-font-mono);
   font-variant-numeric: tabular-nums;
@@ -106,19 +106,19 @@
   display: grid; place-items: center;
   font-family: var(--hd-font-display);
   font-weight: 700;
-  font-size: 20px;
+  font-size: 22px;
   color: var(--hd-ink);
 }
 .hd-roundgauge__meta {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--hd-ink-muted);
-  letter-spacing: .1em;
+  letter-spacing: .08em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 .hd-roundgauge__big {
-  font-size: 16px;
-  color: var(--hd-ink);
+  font-size: 14px;
+  color: var(--hd-ink-soft);
   font-weight: 600;
   white-space: nowrap;
 }

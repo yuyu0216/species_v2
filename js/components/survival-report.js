@@ -68,7 +68,7 @@
             '<span class="hd-changes-final__from">' + habitatReport.beforeCount + '</span>' +
             '<span class="hd-changes-final__arrow">→</span>' +
             '<span class="hd-changes-final__to">' + habitatReport.afterCount +
-              '<small style="font-size:11px;color:var(--hd-ink-muted);font-weight:500;margin-left:3px"> 隻</small>' +
+              '<small style="font-size:13px;color:var(--hd-ink-muted);font-weight:500;margin-left:3px"> 隻</small>' +
             '</span>' +
           '</div>' +
         '</div>' +

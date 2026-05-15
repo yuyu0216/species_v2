@@ -1,5 +1,6 @@
 /* ============================================================
-   AI 對話視窗 — 行動階段地圖下方常駐 / 反思模式右欄
+   AI 對話視窗 — 行動階段底列第三張卡 / 反思模式右欄
+   原始尺寸,小字最低 13px
    ============================================================ */
 
 .hd-chat {
@@ -33,7 +34,7 @@
   color: var(--hd-ink);
 }
 .hd-chat__head-sub {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--hd-ink-muted);
   letter-spacing: .08em;
   text-transform: uppercase;
