@@ -98,7 +98,13 @@
       '<span class="hd-execute__cost">' + queued.length + ' 項 · ' + queuedCost + ' AP</span>';
     btn.addEventListener("click", function () {
       // Phase B 才送 API;目前直接接報告畫面
-      window.HD_STATE.set({ screen: "report", reflectionMode: false, timerRunning: false });
+      // 已移除「先看一般報告再進反思」的中間步驟,展開行動直接進有 AI 對話的生存報告
+      window.HD_STATE.set({
+        screen: "report",
+        reflectionMode: true,
+        timerRunning: false,
+        reportHabitatId: null, // 由 survival-report 在渲染時挑預設棲地
+      });
     });
     aside.appendChild(btn);
 

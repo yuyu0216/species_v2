@@ -26,3 +26,24 @@
 - `js/state.js` 移除 `apRemain`,初始 `queued = []`。
 - `js/data.js` 棲地補上 `shortName` 與 `adjacent`(邊相鄰)。
 - `styles/action-screen.css` 三欄寬調整為 280 / 1fr / 300,新增 hd-actbar / hd-queue 樣式區塊。
+
+## 2026-05-15 生存報告合併 + 棲地分頁
+
+**流程調整**
+- 移除「先看一般報告再進反思」的中間步驟,點「展開行動」直接進入有 AI 對話的生存報告(原反思模式版面)。
+- 一般模式的「開始反思 →」按鈕順勢退場,CTA 永遠是「結束反思」。
+
+**版面**
+- 報告固定為:左欄上下堆疊(族群變化 + 觸發事件) + 右欄 AI 對話。
+- 左欄上方新增棲地分頁列,只列出玩家族群數 > 0 的棲地;點分頁切換左欄顯示。
+
+**資料結構**
+- `HD_REPORT` 改為 `{ round, totals, event, habitats: { [habitatId]: { beforeCount, afterCount, changes } } }`,棲地專屬的結算搬到 habitats[xxx]。
+- `totals` 與 `event` 仍為全域共用(整回合的全族群統計 / 觸發事件)。
+
+**檔案異動**
+- `js/data.js`:`HD_REPORT` 改為 per-habitat 結構,補上 forest / urban / port 三個棲地的 mock。
+- `js/state.js`:新增 `reportHabitatId`(null = 渲染時自動挑第一個玩家有族群的棲地)。
+- `js/components/queue-panel.js`:展開行動時直接帶 `reflectionMode: true` + `reportHabitatId: null`。
+- `js/components/survival-report.js`:整支重寫,移除一般模式分支,新增分頁列與切換邏輯。
+

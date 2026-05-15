@@ -24,9 +24,72 @@
 }
 .hd-report--reflection .hd-report__left-stack {
   display: grid;
-  grid-template-rows: minmax(0, 1.05fr) minmax(0, .85fr);
+  grid-template-rows: auto minmax(0, 1.05fr) minmax(0, .85fr);
   gap: 8px;
   min-height: 0;
+}
+
+/* 棲地分頁(報告左上) */
+.hd-report-tabs {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+  padding: 2px 0;
+}
+.hd-report-tab {
+  --hd-habitat-color: var(--hd-ink-muted);
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: var(--hd-card);
+  border: 1px solid var(--hd-line-soft);
+  border-radius: 10px;
+  font-family: var(--hd-font-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--hd-ink-soft);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s, transform .15s;
+  min-width: 0;
+}
+.hd-report-tab:hover {
+  background: var(--hd-paper);
+  color: var(--hd-ink);
+}
+.hd-report-tab__icon {
+  display: inline-flex;
+  width: 22px; height: 22px;
+  align-items: center; justify-content: center;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--hd-habitat-color) 18%, transparent);
+  color: var(--hd-habitat-color);
+  flex-shrink: 0;
+}
+.hd-report-tab__name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hd-report-tab--active {
+  background: var(--hd-habitat-color);
+  border-color: var(--hd-habitat-color);
+  color: white;
+}
+.hd-report-tab--active .hd-report-tab__icon {
+  background: rgba(255, 255, 255, .22);
+  color: white;
+}
+
+/* 空狀態:此棲地無變化 */
+.hd-changes-empty {
+  padding: 14px 8px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--hd-ink-muted);
+  font-style: italic;
 }
 
 /* 報告 head */

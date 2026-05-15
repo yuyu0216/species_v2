@@ -1,6 +1,7 @@
-// survival-report.js — 第 8 頁:生存報告
-// 一般模式:左數量變化 + 右觸發事件 + 底部「開始反思」CTA
-// 反思模式:左欄變上下堆疊(變化+事件壓縮),右欄改 AI 對話,CTA 變「結束反思」
+// survival-report.js — 第 8 頁:生存報告(已合併原本的「一般 / 反思」雙模式)
+// 版面固定為:左欄上下堆疊(族群變化 + 觸發事件) + 右欄 AI 對話
+// 頂部新增棲地分頁,只列出玩家族群數 > 0 的棲地。
+// CTA 直接顯示「結束反思」,結束後回到 action 畫面。
 
 (function () {
   var changeIcon = {
@@ -15,36 +16,58 @@
     negative: "hd-change--negative",
   };
 
-  function renderChangesSection(report, habitat) {
+  // 取玩家族群數 > 0 的棲地清單(分頁來源)
+  function playerHabitats(speciesId) {
+    var list = [];
+    for (var i = 0; i < window.HD_HABITATS.length; i++) {
+      var h = window.HD_HABITATS[i];
+      var pop = (h.populations && h.populations[speciesId]) || 0;
+      if (pop > 0) list.push(h);
+    }
+    return list;
+  }
+
+  // 取得指定棲地的本回合結算(若無,給安全空殼)
+  function reportOfHabitat(habitatId) {
+    var byHabitat = (window.HD_REPORT && window.HD_REPORT.habitats) || {};
+    return byHabitat[habitatId] || { beforeCount: 0, afterCount: 0, changes: [] };
+  }
+
+  function renderChangesSection(habitatReport, habitat) {
     var rowsHtml = "";
-    for (var i = 0; i < report.changes.length; i++) {
-      var c = report.changes[i];
-      var deltaCls =
-        c.delta > 0 ? "hd-change__delta--pos" :
-        c.delta < 0 ? "hd-change__delta--neg" : "hd-change__delta--neutral";
-      var deltaTxt = c.delta > 0 ? "+" + c.delta : c.delta === 0 ? "±0" : ("" + c.delta);
-      rowsHtml +=
-        '<div class="hd-change ' + (changeStatusClass[c.status] || "") + '" data-change-type="' + c.type + '">' +
-          '<div class="hd-change__icon">' + window.hdIconSvg(changeIcon[c.type] || "user", 16) + '</div>' +
-          '<div class="hd-change__name">' + c.name + '</div>' +
-          '<div class="hd-change__detail">' + c.detail + '</div>' +
-          '<div class="hd-change__delta ' + deltaCls + '">' + deltaTxt + ' 隻</div>' +
-        '</div>';
+    if (!habitatReport.changes.length) {
+      rowsHtml =
+        '<div class="hd-changes-empty">此棲地本回合沒有族群變化</div>';
+    } else {
+      for (var i = 0; i < habitatReport.changes.length; i++) {
+        var c = habitatReport.changes[i];
+        var deltaCls =
+          c.delta > 0 ? "hd-change__delta--pos" :
+          c.delta < 0 ? "hd-change__delta--neg" : "hd-change__delta--neutral";
+        var deltaTxt = c.delta > 0 ? "+" + c.delta : c.delta === 0 ? "±0" : ("" + c.delta);
+        rowsHtml +=
+          '<div class="hd-change ' + (changeStatusClass[c.status] || "") + '" data-change-type="' + c.type + '">' +
+            '<div class="hd-change__icon">' + window.hdIconSvg(changeIcon[c.type] || "user", 16) + '</div>' +
+            '<div class="hd-change__name">' + c.name + '</div>' +
+            '<div class="hd-change__detail">' + c.detail + '</div>' +
+            '<div class="hd-change__delta ' + deltaCls + '">' + deltaTxt + ' 隻</div>' +
+          '</div>';
+      }
     }
     return (
       '<section class="hd-report-changes hd-scroll" data-section="changes">' +
         '<div class="hd-report-changes__head">' +
           '<div class="hd-report-changes__icon">' + window.hdIconSvg(habitat.id, 16) + '</div>' +
           '<div class="hd-report-changes__habitat">' + habitat.name + '</div>' +
-          '<div class="hd-report-changes__numline">原先 <strong>' + report.beforeCount + '</strong> 隻</div>' +
+          '<div class="hd-report-changes__numline">原先 <strong>' + habitatReport.beforeCount + '</strong> 隻</div>' +
         '</div>' +
         '<div class="hd-changes-list">' + rowsHtml + '</div>' +
         '<div class="hd-changes-final">' +
           '<div class="hd-changes-final__lbl">當前數量</div>' +
           '<div class="hd-changes-final__num">' +
-            '<span class="hd-changes-final__from">' + report.beforeCount + '</span>' +
+            '<span class="hd-changes-final__from">' + habitatReport.beforeCount + '</span>' +
             '<span class="hd-changes-final__arrow">→</span>' +
-            '<span class="hd-changes-final__to">' + report.afterCount +
+            '<span class="hd-changes-final__to">' + habitatReport.afterCount +
               '<small style="font-size:11px;color:var(--hd-ink-muted);font-weight:500;margin-left:3px"> 隻</small>' +
             '</span>' +
           '</div>' +
@@ -83,13 +106,40 @@
     );
   }
 
+  // 棲地分頁列
+  function renderHabitatTabs(habitats, currentId) {
+    var tabsHtml = "";
+    for (var i = 0; i < habitats.length; i++) {
+      var h = habitats[i];
+      var active = h.id === currentId;
+      tabsHtml +=
+        '<button type="button" class="hd-report-tab' + (active ? " hd-report-tab--active" : "") + '" ' +
+          'data-habitat-id="' + h.id + '" ' +
+          'style="--hd-habitat-color: ' + h.themeColor + '">' +
+          '<span class="hd-report-tab__icon">' + window.hdIconSvg(h.id, 14) + '</span>' +
+          '<span class="hd-report-tab__name">' + (h.shortName || h.name) + '</span>' +
+        '</button>';
+    }
+    return '<div class="hd-report-tabs">' + tabsHtml + '</div>';
+  }
+
   window.hdRenderReport = function (state) {
     var report = window.HD_REPORT;
-    var habitat = window.HD_HABITATS.find(function (h) { return h.id === report.habitatId; });
-    var reflection = !!state.reflectionMode;
 
+    // 找出玩家有族群的棲地;若空(理論上不該發生),退回全部棲地
+    var habitats = playerHabitats(state.species);
+    if (!habitats.length) habitats = window.HD_HABITATS.slice();
+
+    // 決定當前分頁(state 沒指定或指定的不在玩家棲地清單就重挑)
+    var currentId = state.reportHabitatId;
+    var isValid = currentId && habitats.some(function (h) { return h.id === currentId; });
+    if (!isValid) currentId = habitats[0].id;
+    var habitat = habitats.find(function (h) { return h.id === currentId; });
+    var habitatReport = reportOfHabitat(currentId);
+
+    // 根節點固定走原本的反思版面(已移除一般模式)
     var root = document.createElement("div");
-    root.className = "hd-report" + (reflection ? " hd-report--reflection" : "");
+    root.className = "hd-report hd-report--reflection";
     root.style.setProperty("--hd-habitat-color", habitat.themeColor);
 
     // head(共用)
@@ -119,60 +169,49 @@
       '</div>';
     root.appendChild(head);
 
-    // 主要內容
-    if (!reflection) {
-      // 一般模式:左數量變化 + 右觸發事件
-      var changesWrap = document.createElement("div");
-      changesWrap.style.minHeight = "0";
-      changesWrap.innerHTML = renderChangesSection(report, habitat);
-      root.appendChild(changesWrap.firstElementChild);
+    // 左欄:棲地分頁 + 上下堆疊(變化 + 事件)
+    var leftStack = document.createElement("div");
+    leftStack.className = "hd-report__left-stack";
+    leftStack.innerHTML =
+      renderHabitatTabs(habitats, currentId) +
+      renderChangesSection(habitatReport, habitat) +
+      renderEventSection(report);
+    root.appendChild(leftStack);
 
-      var eventWrap = document.createElement("div");
-      eventWrap.style.minHeight = "0";
-      eventWrap.innerHTML = renderEventSection(report);
-      root.appendChild(eventWrap.firstElementChild);
-    } else {
-      // 反思模式:左欄堆疊(變化+事件) + 右欄 AI 對話
-      var leftStack = document.createElement("div");
-      leftStack.className = "hd-report__left-stack";
-      leftStack.innerHTML = renderChangesSection(report, habitat) + renderEventSection(report);
-      root.appendChild(leftStack);
-
-      // 右欄:複用 chat 元件
-      root.appendChild(window.hdRenderChat(state, "reflection"));
+    // 分頁點擊切換
+    var tabBtns = leftStack.querySelectorAll(".hd-report-tab");
+    for (var i = 0; i < tabBtns.length; i++) {
+      tabBtns[i].addEventListener("click", function () {
+        var id = this.getAttribute("data-habitat-id");
+        if (id !== window.HD_STATE.get().reportHabitatId) {
+          window.HD_STATE.set({ reportHabitatId: id });
+        }
+      });
     }
 
-    // 底部 CTA
+    // 右欄:複用 chat 元件
+    root.appendChild(window.hdRenderChat(state, "reflection"));
+
+    // 底部 CTA(結束反思)
     var cta = document.createElement("div");
     cta.className = "hd-report-cta";
-    if (!reflection) {
-      cta.innerHTML =
-        '<div class="hd-report-cta__text">' +
-          '準備好進入個人反思階段' +
-          '<small>與 AI 聊聊:你做了什麼?為什麼?你覺得發生了什麼變化?</small>' +
-        '</div>' +
-        '<button class="hd-report-cta__btn" type="button">開始反思 →</button>';
-      cta.querySelector("button").addEventListener("click", function () {
-        window.HD_STATE.set({ reflectionMode: true });
+    cta.innerHTML =
+      '<div class="hd-report-cta__text">' +
+        '反思結束後,等老師統一推進下一回合' +
+        '<small>對話會被保留,等 AI 串接後可以回顧</small>' +
+      '</div>' +
+      '<button class="hd-report-cta__btn hd-report-cta__btn--ghost" type="button">結束反思</button>';
+    cta.querySelector("button").addEventListener("click", function () {
+      // 結束反思:回到 action 畫面,重置倒數與 queued
+      window.HD_STATE.set({
+        screen: "action",
+        reflectionMode: false,
+        reportHabitatId: null,
+        timerSeconds: 300,
+        timerRunning: true,
+        queued: [],
       });
-    } else {
-      cta.innerHTML =
-        '<div class="hd-report-cta__text">' +
-          '反思結束後,等老師統一推進下一回合' +
-          '<small>對話會被保留,等 AI 串接後可以回顧</small>' +
-        '</div>' +
-        '<button class="hd-report-cta__btn hd-report-cta__btn--ghost" type="button">結束反思</button>';
-      cta.querySelector("button").addEventListener("click", function () {
-        // 結束反思:回到 action 畫面,重置倒數與 queued
-        window.HD_STATE.set({
-          screen: "action",
-          reflectionMode: false,
-          timerSeconds: 300,
-          timerRunning: true,
-          queued: [],
-        });
-      });
-    }
+    });
     root.appendChild(cta);
 
     return root;

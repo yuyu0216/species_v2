@@ -22,7 +22,8 @@
     chatMessages: [                 // AI 對話訊息(共用於行動階段與反思模式)
       { from: "ai", text: "嗨,我陪你玩這一回合。有任何想法都可以告訴我。" },
     ],
-    reflectionMode: false,          // 生存報告中的反思模式開關
+    reflectionMode: false,          // 生存報告中的反思模式開關(已移除中間步驟,但保留欄位以相容)
+    reportHabitatId: null,          // 生存報告當前查看的棲地分頁(null = 渲染時自動挑第一個玩家有族群的棲地)
   };
 
   var listeners = [];

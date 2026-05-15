@@ -98,17 +98,10 @@ window.HD_ACTIONS = [
 ];
 
 // 生存報告假資料
+// habitats 以 habitatId 為 key,每個棲地各有一份結算(beforeCount/afterCount/changes)
+// totals 與 event 共用(整個回合的全域資訊)
 window.HD_REPORT = {
   round: 2,
-  habitatId: "wetland",
-  beforeCount: 60,
-  afterCount: 80,
-  changes: [
-    { type: "forage",    name: "覓食",   detail: "成功,全數存活",         delta: 0,   status: "success" },
-    { type: "breed",     name: "繁殖",   detail: "成功,於濕地農田增加",   delta: 20,  status: "success" },
-    { type: "migrate",   name: "遷移",   detail: "自淺山森林遷入",         delta: 10,  status: "inflow" },
-    { type: "predation", name: "被吃掉", detail: "天敵活動增加",           delta: -10, status: "negative" },
-  ],
   totals: {
     netDelta: 20,
     speciesTotal: 150,
@@ -126,5 +119,38 @@ window.HD_REPORT = {
       { speciesId: "blue",   label: "藍色族群覓食 AP", delta: +1,  kind: "buff", note: "下回合" },
       { speciesId: "yellow", label: "黃色族群覓食 AP", delta: +1,  kind: "buff", note: "下回合" },
     ],
+  },
+  habitats: {
+    wetland: {
+      beforeCount: 60,
+      afterCount: 80,
+      changes: [
+        { type: "forage",    name: "覓食",   detail: "成功,全數存活",       delta: 0,   status: "success" },
+        { type: "breed",     name: "繁殖",   detail: "成功,於濕地農田增加", delta: 20,  status: "success" },
+        { type: "migrate",   name: "遷移",   detail: "自淺山森林遷入",       delta: 10,  status: "inflow" },
+        { type: "predation", name: "被吃掉", detail: "天敵活動增加",         delta: -10, status: "negative" },
+      ],
+    },
+    forest: {
+      beforeCount: 0,
+      afterCount: 0,
+      changes: [],
+    },
+    urban: {
+      beforeCount: 10,
+      afterCount: 5,
+      changes: [
+        { type: "forage",    name: "覓食",   detail: "食物不足,部分餓死", delta: -5, status: "negative" },
+        { type: "migrate",   name: "遷移",   detail: "尚未進入此棲地",     delta: 0,  status: "success"  },
+      ],
+    },
+    port: {
+      beforeCount: 45,
+      afterCount: 50,
+      changes: [
+        { type: "forage", name: "覓食", detail: "成功,於港口物流",   delta: 0,  status: "success" },
+        { type: "breed",  name: "繁殖", detail: "成功,於港口物流增加", delta: 5, status: "success" },
+      ],
+    },
   },
 };
